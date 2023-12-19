@@ -1,0 +1,35 @@
+# .github/workflows/Run1.yml
+
+name: Run1 Workflow
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      continue:
+        description: 'Continue after Run2'
+        required: false
+        default: 'no'
+
+jobs:
+  initial_step:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initial Action
+        run: echo "Initial action in Run1"
+
+      - name: Trigger Run2 Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Run2 Workflow
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+  final_step:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.continue == 'yes' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Final Action
+        run: echo "Final action in Run1 after Run2 completion"
